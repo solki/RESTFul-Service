@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<deploy xmlns="http://www.apache.org/ode/schemas/dd/2007/03" xmlns:autocheck.soacourse.unsw.edu.au="http://autocheck.soacourse.unsw.edu.au" xmlns:crv.soacourse.unsw.edu.au="http://crv.soacourse.unsw.edu.au" xmlns:pdv.soacourse.unsw.edu.au="http://pdv.soacourse.unsw.edu.au">
+  <process name="autocheck.soacourse.unsw.edu.au:AutoCheck">
+    <active>true</active>
+    <retired>false</retired>
+    <process-events generate="all"/>
+    <provide partnerLink="client">
+      <service name="autocheck.soacourse.unsw.edu.au:AutoCheckService" port="AutoCheck"/>
+    </provide>
+    <invoke partnerLink="pdvChecker">
+      <service name="pdv.soacourse.unsw.edu.au:PDVService" port="PDVService"/>
+    </invoke>
+    <invoke partnerLink="crvChecker">
+      <service name="crv.soacourse.unsw.edu.au:CRVService" port="CRVService"/>
+    </invoke>
+  </process>
+</deploy>

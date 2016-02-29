@@ -1,0 +1,139 @@
+<?xml version="1.0"?>
+<definitions name="AutoCheck"
+		xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        targetNamespace="http://autocheck.soacourse.unsw.edu.au"
+        xmlns:tns="http://autocheck.soacourse.unsw.edu.au"        
+        xmlns:plnk="http://docs.oasis-open.org/wsbpel/2.0/plnktype"
+        xmlns="http://schemas.xmlsoap.org/wsdl/"
+        xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+        
+        xmlns:crv="http://crv.soacourse.unsw.edu.au"
+        xmlns:pdv="http://pdv.soacourse.unsw.edu.au"
+        
+        >
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     TYPE DEFINITION - List of types participating in this BPEL process 
+     The BPEL Designer will generate default request and response types
+     but you can define or import any XML Schema type and use them as part 
+     of the message types.
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->    
+    <types>
+        <xsd:schema attributeFormDefault="unqualified" elementFormDefault="qualified" 
+                targetNamespace="http://autocheck.soacourse.unsw.edu.au" 
+                xmlns="http://www.w3.org/2001/XMLSchema">
+
+            <xsd:element name="AutoCheckRequest">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="licenseNumber" nillable="false" type="xsd:string"></xsd:element>
+            			<xsd:element name="fullName" nillable="false" type="xsd:string"></xsd:element>
+            			<xsd:element name="postcode" nillable="false" type="xsd:string"></xsd:element>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+			
+			<xsd:simpleType name="PDVResponseCode">
+      		<xsd:restriction base="xsd:string">
+                    <xsd:enumeration value="AllMatch"/>
+                    <xsd:enumeration value="PartialMatch"/>
+                    <xsd:enumeration value="NoMatch"/>
+       	 	</xsd:restriction>
+      		</xsd:simpleType>
+      		
+      		<xsd:simpleType name="CRVResponseCode">
+      		<xsd:restriction base="xsd:string">
+                    <xsd:enumeration value="CLEAN"/>
+                    <xsd:enumeration value="DIRTY"/>
+                    <xsd:enumeration value="UNKNOWN"/>
+       	 	</xsd:restriction>
+     		</xsd:simpleType>
+      		
+            <xsd:element name="AutoCheckResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="pdvcode" type="tns:PDVResponseCode"/>
+                        <xsd:element name="pdvmsg" type="xsd:string"/>
+                        <xsd:element name="crvcode" type="tns:CRVResponseCode"/>
+                        <xsd:element name="crvmsg" type="xsd:string"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+        </xsd:schema>
+    </types>
+
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     MESSAGE TYPE DEFINITION - Definition of the message types used as 
+     part of the port type defintions
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->    
+    <message name="AutoCheckRequestMessage">
+        <part name="payload" element="tns:AutoCheckRequest"/>
+    </message>
+    <message name="AutoCheckResponseMessage">
+        <part name="payload" element="tns:AutoCheckResponse"/>
+    </message>
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     PORT TYPE DEFINITION - A port type groups a set of operations into
+     a logical service unit.
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->    
+
+    <!-- portType implemented by the AutoCheck BPEL process -->
+    <portType name="AutoCheck">
+        <operation name="autoCheckProcess">
+            <input  message="tns:AutoCheckRequestMessage" />
+            <output message="tns:AutoCheckResponseMessage"/>
+        </operation>
+    </portType>   
+	
+	
+	<import namespace="http://crv.soacourse.unsw.edu.au"
+		location="CRV.wsdl" />
+	<import namespace="http://pdv.soacourse.unsw.edu.au"
+		location="PDV.wsdl" />
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     PARTNER LINK TYPE DEFINITION
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->    
+    <plnk:partnerLinkType name="AutoCheck">
+        <plnk:role name="checker" portType="tns:AutoCheck"/>
+    </plnk:partnerLinkType>
+    <plnk:partnerLinkType name="PDVCheck">
+        <plnk:role name="checker" portType="pdv:PDVService"/>
+    </plnk:partnerLinkType>
+    <plnk:partnerLinkType name="CRVCheck">
+        <plnk:role name="checker" portType="crv:CRVService"/>
+    </plnk:partnerLinkType>
+    
+    
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     BINDING DEFINITION - Defines the message format and protocol details
+     for a web service.
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    <binding name="AutoCheckBinding" type="tns:AutoCheck">
+    	<soap:binding style="document"
+    		transport="http://schemas.xmlsoap.org/soap/http" />
+    	<operation name="autoCheckProcess">
+    		<soap:operation
+    			soapAction="http://autocheck.soacourse.unsw.edu.au/autoCheckProcess" />
+    		<input>
+    			<soap:body use="literal" />
+    		</input>
+    		<output>
+    			<soap:body use="literal" />
+    		</output>
+    	</operation>
+    </binding>
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     SERVICE DEFINITION - A service groups a set of ports into
+     a service unit.
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    <service name="AutoCheckService">
+    	<port name="AutoCheck" binding="tns:AutoCheckBinding">
+    		<soap:address location="http://localhost:6060/ode/processes/AutoCheckService" />
+    	</port>
+    </service>
+</definitions>
